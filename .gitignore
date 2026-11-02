@@ -1,0 +1,15 @@
+# dependencies
+/node_modules
+
+# build output
+/dist
+/coverage
+*.tsbuildinfo
+
+# env files (비밀값은 GitHub에 올리지 않음)
+.env*
+!.env.example
+
+# misc
+.DS_Store
+npm-debug.log*
