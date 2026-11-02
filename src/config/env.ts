@@ -5,6 +5,9 @@ export interface AppEnv {
   JWT_SECRET: string;
   ADMIN_EMAIL: string;
   ADMIN_PASSWORD: string;
+  /** 로컬 전용 데모 로그인 버튼 */
+  DEMO_LOGIN: boolean;
+  DEMO_PASSWORD: string;
 }
 
 const REQUIRED_KEYS = [
@@ -34,5 +37,8 @@ export function validateEnv(raw: Record<string, unknown>): AppEnv {
     JWT_SECRET: text('JWT_SECRET'),
     ADMIN_EMAIL: text('ADMIN_EMAIL'),
     ADMIN_PASSWORD: text('ADMIN_PASSWORD'),
+    DEMO_LOGIN: text('DEMO_LOGIN') === 'true',
+    // 비워 두면 데모 계정도 관리자 비밀번호를 쓴다
+    DEMO_PASSWORD: text('DEMO_PASSWORD') || text('ADMIN_PASSWORD'),
   };
 }
