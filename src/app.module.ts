@@ -11,6 +11,7 @@ import { ClassesModule } from './modules/classes/classes.module.js';
 import { EnrollmentsModule } from './modules/enrollments/enrollments.module.js';
 import { EntitiesModule } from './modules/entities.module.js';
 import { HealthModule } from './modules/health/health.module.js';
+import { PaymentsModule } from './modules/payments/payments.module.js';
 import { PublicModule } from './modules/public/public.module.js';
 import { SeedModule } from './modules/seed/seed.module.js';
 import { StudentsModule } from './modules/students/students.module.js';
@@ -32,6 +33,7 @@ import { UsersModule } from './modules/users/users.module.js';
     ClassesModule,
     EnrollmentsModule,
     AttendanceModule,
+    PaymentsModule,
     // 원장 계정(AuthModule)이 먼저 생긴 뒤 데모 데이터를 넣는다
     SeedModule,
   ],

@@ -21,6 +21,8 @@ import {
   SEED_TEACHERS,
 } from './seed-data.js';
 import { seedClasswork } from './seed-classwork.js';
+import { seedPayments } from './seed-payments.js';
+import { TuitionPayment } from '../payments/tuition-payment.entity.js';
 
 /**
  * 빈 화면이 없도록 가상 데이터를 넣는다. 학생이 한 명도 없을 때만 한 번 실행한다.
@@ -52,6 +54,10 @@ export class SeedService implements OnApplicationBootstrap {
         seedClasswork(manager, passwordHash),
       );
       this.logger.log('데모 데이터(수강·수업일·출결)를 넣었어요');
+    }
+    if (!(await this.dataSource.getRepository(TuitionPayment).exists())) {
+      await this.dataSource.transaction((manager) => seedPayments(manager));
+      this.logger.log('데모 데이터(납부)를 넣었어요');
     }
   }
 

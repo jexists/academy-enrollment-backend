@@ -21,15 +21,20 @@ npm run start:dev      # http://localhost:4200/health
 - `src/common/guards/auth.guard.ts` — 토큰 확인 + 계정을 매번 다시 확인(사용 중지·탈퇴 즉시 차단, 임시 비밀번호면 변경 전까지 차단)
 - 업무 규칙은 `modules/<도메인>/*-rules.ts` 순수 함수 + `*.spec.ts`
 
-## API (지금까지)
-| 메서드 | 경로 | 누가 | 설명 |
-|---|---|---|---|
-| GET | `/health` | 누구나 | 서버·DB 연결 |
-| GET | `/public/classes` | 누구나 | 첫 화면 반 목록 (요일·시간·수강료·남은 자리) |
-| POST | `/auth/login` | 누구나 | `{ email, password, app: 'web' \| 'admin' }` — 화면에 맞지 않는 역할은 거절 |
-| GET | `/auth/me` | 로그인 | 내 정보 (임시 비밀번호여도 됨) |
-| POST | `/auth/password` | 로그인 | 비밀번호 변경 → 변경 강제 해제 |
-| GET/POST | `/auth/demo-accounts`, `/auth/demo-login` | 로컬만 | `DEMO_LOGIN=true`일 때만. 배포 서버에서는 404 |
+## API
+| 묶음 | 경로 | 누가 |
+|---|---|---|
+| 공통 | `GET /health`, `GET /public/classes` | 누구나 |
+| 로그인 | `POST /auth/login`·`/auth/signup`, `GET /auth/me`, `POST /auth/password`, (로컬만) `/auth/demo-accounts`·`/auth/demo-login` | 누구나 / 로그인 |
+| 학생·학적 | `GET·POST /admin/students`, `GET /admin/students/:id`, `POST .../school-history`·`grade-adjustments`·`notes`·`reset-password`, `GET·POST /admin/schools`, `GET /admin/families` | 원장 |
+| 반·강사 | `GET·POST /admin/classes`, `GET·PATCH /admin/classes/:id`, `POST .../sessions/generate`·`extra-sessions`, `POST /admin/sessions/:id/cancel`, `GET·POST /admin/teachers`, `GET /admin/teachers/:id/slots` | 원장 |
+| 수강 | `GET /parent/children`·`/parent/classes`, `GET·POST /parent/enrollments`, `POST .../cancel`·`refund-request` / `GET /admin/enrollments`, `POST .../approve`·`reject`·`finish`, `POST /admin/enrollments/phone` | 학부모 / 원장 |
+| 출결·보강 | `GET /staff/sessions`, `GET .../roster`, `PUT .../attendance`, `GET /staff/makeups`·`/staff/makeups/needed` / `GET·POST /admin/makeups(…)`, `POST .../confirm`·`reject` / `GET·POST /parent/makeups(…)` | 원장·강사(담당 반) / 원장 / 학부모 |
+| 학생 보기 | `GET /student/schedule`, `GET /student/attendance` / `GET /parent/attendance` | 학생 / 학부모 |
+| 돈 | `GET·POST /admin/payments`, `GET /admin/enrollments/:id/refund-preview` / `GET /parent/payments`, `GET /parent/enrollments/:id/refund-preview` | 원장 / 학부모 |
+
+- 업무 규칙은 `modules/*/*-rules.ts`(테스트 `*.spec.ts`): 학년 계산, 강사·학생 시간 겹침, 월 수업일, 수강 신청(중복·정원·학년), 출석률(지각 3 = 결석 1), 보강 조건, 형제 할인, 환불 구간
+- 로컬 데모 데이터 초기화: `npm run db:reset` 후 서버 재시작 (`DEMO_LOGIN=true`일 때만 동작)
 
 ## 배포 (Render)
 - Build `npm install && npm run build`, Start `npm run start:prod`
