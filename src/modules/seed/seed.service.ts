@@ -11,6 +11,7 @@ import { ParentProfile } from '../families/parent-profile.entity.js';
 import { School } from '../students/school.entity.js';
 import { StudentSchoolHistory } from '../students/student-school-history.entity.js';
 import { Student } from '../students/student.entity.js';
+import { Enrollment } from '../enrollments/enrollment.entity.js';
 import { Teacher } from '../teachers/teacher.entity.js';
 import { AppUser } from '../users/app-user.entity.js';
 import {
@@ -19,6 +20,7 @@ import {
   SEED_SCHOOLS,
   SEED_TEACHERS,
 } from './seed-data.js';
+import { seedClasswork } from './seed-classwork.js';
 
 /**
  * 빈 화면이 없도록 가상 데이터를 넣는다. 학생이 한 명도 없을 때만 한 번 실행한다.
@@ -34,15 +36,23 @@ export class SeedService implements OnApplicationBootstrap {
   ) {}
 
   async onApplicationBootstrap() {
-    if (await this.dataSource.getRepository(Student).exists()) return;
     const passwordHash = await bcrypt.hash(
       this.config.get('DEMO_PASSWORD', { infer: true }),
       10,
     );
-    await this.dataSource.transaction((manager) =>
-      this.seed(manager, passwordHash),
-    );
-    this.logger.log('데모 데이터를 넣었어요');
+    if (!(await this.dataSource.getRepository(Student).exists())) {
+      await this.dataSource.transaction((manager) =>
+        this.seed(manager, passwordHash),
+      );
+      this.logger.log('데모 데이터(사람·반)를 넣었어요');
+    }
+    // 단계마다 붙는 데모 데이터 — 해당 테이블이 비어 있을 때만
+    if (!(await this.dataSource.getRepository(Enrollment).exists())) {
+      await this.dataSource.transaction((manager) =>
+        seedClasswork(manager, passwordHash),
+      );
+      this.logger.log('데모 데이터(수강·수업일·출결)를 넣었어요');
+    }
   }
 
   private async seed(m: EntityManager, passwordHash: string) {

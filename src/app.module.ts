@@ -4,6 +4,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { RequestContextMiddleware } from './common/context/request-context.middleware.js';
 import { validateEnv } from './config/env.js';
 import { DatabaseModule } from './database/database.module.js';
+import { AttendanceModule } from './modules/attendance/attendance.module.js';
 import { AuditModule } from './modules/audit/audit.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { ClassesModule } from './modules/classes/classes.module.js';
@@ -30,6 +31,7 @@ import { UsersModule } from './modules/users/users.module.js';
     StudentsModule,
     ClassesModule,
     EnrollmentsModule,
+    AttendanceModule,
     // 원장 계정(AuthModule)이 먼저 생긴 뒤 데모 데이터를 넣는다
     SeedModule,
   ],

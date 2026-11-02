@@ -92,6 +92,17 @@ export const SEED_CLASSES = [
     start: '17:00',
     end: '19:00',
   },
+  {
+    name: '중2 서술형',
+    targetGrade: 8,
+    teacher: '최강사',
+    capacity: 8,
+    monthlyFee: 280000,
+    intro: '서술형 풀이를 쓰는 연습을 해요',
+    days: [3],
+    start: '19:00',
+    end: '21:00',
+  },
 ] as const;
 
 interface SeedParent {
@@ -266,3 +277,42 @@ export const SEED_FAMILIES: SeedFamily[] = [
     notes: [],
   },
 ];
+
+/** 중2 기본B를 정원(8명)까지 채우는 학생들 — 정원 초과 거절을 보여 주려고 (B7) */
+export const SEED_FILLERS = [
+  '강도윤',
+  '윤서준',
+  '장하은',
+  '임지우',
+  '한예린',
+  '오시우',
+  '서지안',
+];
+
+/** 수강 (수강중). 같은 가족 두 번째 학생(김서연)은 형제 할인 대상 */
+export const SEED_ENROLLMENTS = [
+  { student: '김민준', className: '중2 심화A', startDate: '2026-09-01' },
+  { student: '김서연', className: '중1 기본A', startDate: '2026-03-03' },
+  { student: '이지호', className: '중2 심화A', startDate: '2026-03-10' },
+  { student: '박하린', className: '중2 기본B', startDate: '2026-04-01' },
+  ...SEED_FILLERS.map((name) => ({
+    student: name,
+    className: '중2 기본B',
+    startDate: '2026-03-02',
+  })),
+];
+
+/** 승인 대기 신청 (학부모가 코어 웹에서 신청한 것처럼) */
+export const SEED_APPLICATIONS = [
+  { student: '박하린', className: '중2 심화A' },
+];
+
+/** 이번 달 지난 수업 출결 — 적지 않은 학생은 출석. 이지호는 계속 결석(C14 보강 필요), 김민준은 지각 */
+export const SEED_ATTENDANCE_RULES: Record<
+  string,
+  (index: number) => { status: '출석' | '지각' | '결석'; late?: number }
+> = {
+  이지호: () => ({ status: '결석' }),
+  김민준: (i) => (i === 0 ? { status: '지각', late: 15 } : { status: '출석' }),
+  박하린: (i) => (i === 0 ? { status: '결석' } : { status: '출석' }),
+};
