@@ -22,6 +22,7 @@ import {
   DemoLoginDto,
   LoginDto,
   type AppKind,
+  SignupDto,
 } from './auth.dto.js';
 import { AuthService, type ClientInfo } from './auth.service.js';
 
@@ -42,6 +43,12 @@ export class AuthController {
   @UseGuards(ThrottlerGuard)
   login(@Body() dto: LoginDto, @Req() req: Request) {
     return this.auth.login(dto, client(req));
+  }
+
+  @Post('signup')
+  @UseGuards(ThrottlerGuard)
+  signup(@Body() dto: SignupDto, @Req() req: Request) {
+    return this.auth.signup(dto, client(req));
   }
 
   @Get('demo-accounts')

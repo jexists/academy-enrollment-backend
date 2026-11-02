@@ -3,10 +3,11 @@ import {
   IsIn,
   IsNotEmpty,
   IsString,
+  Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { MSG } from '../../common/dto/validation-messages.js';
+import { MSG, PHONE_PATTERN } from '../../common/dto/validation-messages.js';
 
 export type AppKind = 'web' | 'admin';
 const APPS: AppKind[] = ['web', 'admin'];
@@ -42,4 +43,26 @@ export class ChangePasswordDto {
   @MinLength(8, { message: MSG.password })
   @MaxLength(72, { message: MSG.passwordTooLong })
   newPassword: string;
+}
+
+/** 학부모 직접 가입 (공통1). 자녀 연결은 학원이 가족에 넣어 준다 (결정6·26) */
+export class SignupDto {
+  @IsString()
+  @IsNotEmpty({ message: MSG.nameRequired })
+  @MaxLength(40)
+  name: string;
+
+  @IsEmail({}, { message: MSG.email })
+  email: string;
+
+  @IsString({ message: MSG.password })
+  @MinLength(8, { message: MSG.password })
+  @MaxLength(72, { message: MSG.passwordTooLong })
+  password: string;
+
+  @Matches(PHONE_PATTERN, { message: MSG.phone })
+  phone: string;
+
+  @IsIn(['부', '모'], { message: '관계를 골라 주세요.' })
+  relation: '부' | '모';
 }

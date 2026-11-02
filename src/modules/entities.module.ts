@@ -1,5 +1,10 @@
 import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Attendance } from './attendance/attendance.entity.js';
+import { Makeup } from './attendance/makeup.entity.js';
+import { Enrollment } from './enrollments/enrollment.entity.js';
+import { ExamScore } from './exams/exam-score.entity.js';
+import { TuitionPayment } from './payments/tuition-payment.entity.js';
 import { ClassSchedule } from './classes/class-schedule.entity.js';
 import { ClassSession } from './classes/class-session.entity.js';
 import { ClassEntity } from './classes/class.entity.js';
@@ -28,6 +33,11 @@ import { Teacher } from './teachers/teacher.entity.js';
       ClassEntity,
       ClassSchedule,
       ClassSession,
+      Enrollment,
+      Attendance,
+      Makeup,
+      TuitionPayment,
+      ExamScore,
     ]),
   ],
   exports: [TypeOrmModule],

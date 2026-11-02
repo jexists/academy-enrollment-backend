@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   Logger,
@@ -21,7 +22,13 @@ import {
   newPasswordProblem,
   wrongAppMessage,
 } from './auth-rules.js';
-import type { AppKind, ChangePasswordDto, LoginDto } from './auth.dto.js';
+import { ParentProfile } from '../families/parent-profile.entity.js';
+import type {
+  AppKind,
+  ChangePasswordDto,
+  LoginDto,
+  SignupDto,
+} from './auth.dto.js';
 
 const LOGIN_FAILED = '이메일 또는 비밀번호가 맞지 않아요.';
 const INACTIVE = '사용이 중지된 계정이에요. 원장님께 문의하세요.';
@@ -79,6 +86,41 @@ export class AuthService implements OnApplicationBootstrap {
       throw new UnauthorizedException(LOGIN_FAILED);
     }
     return this.issueAndRecord(user, dto.app, client);
+  }
+
+  /** 학부모 회원가입 → 바로 로그인. 가족 연결 전이라 parent_profile.family_id는 null */
+  async signup(dto: SignupDto, client: ClientInfo): Promise<LoginResult> {
+    const email = dto.email.trim().toLowerCase();
+    const exists = await this.users
+      .createQueryBuilder('user')
+      .where('lower(user.email) = :email', { email })
+      .getExists();
+    if (exists) {
+      throw new ConflictException({
+        message: '입력한 내용을 다시 확인해 주세요.',
+        fieldErrors: { email: '이미 가입된 이메일이에요.' },
+      });
+    }
+    const user = await this.users.manager.transaction(async (m) => {
+      const created = await m.save(
+        m.create(AppUser, {
+          email,
+          name: dto.name.trim(),
+          role: 'PARENT',
+          passwordHash: await bcrypt.hash(dto.password, 10),
+        }),
+      );
+      await m.save(
+        m.create(ParentProfile, {
+          userId: created.id,
+          relation: dto.relation,
+          name: dto.name.trim(),
+          phone: dto.phone,
+        }),
+      );
+      return created;
+    });
+    return this.issueAndRecord(user, 'web', client);
   }
 
   /** 로컬 전용: 비밀번호 없이 데모 계정으로 로그인 (DEMO_LOGIN=true일 때만) */

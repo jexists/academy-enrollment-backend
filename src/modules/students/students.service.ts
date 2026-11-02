@@ -85,6 +85,16 @@ export class StudentsService {
     return rows.map((row) => this.toView(row));
   }
 
+  /** 학생 지금 학년 (7~12). 학교 이력이 없으면 null */
+  async gradeOf(id: number): Promise<number | null> {
+    const [row]: StudentRow[] = await this.dataSource.query(
+      `${STUDENT_SQL} AND s.id = $1`,
+      [id],
+    );
+    if (!row) throw new NotFoundException('없는 학생이에요.');
+    return this.toView(row).grade;
+  }
+
   async detail(id: number) {
     const [row]: StudentRow[] = await this.dataSource.query(
       `${STUDENT_SQL} AND s.id = $1`,
