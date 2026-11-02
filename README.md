@@ -1,7 +1,7 @@
-# hanbit-math-backend
+# academy-enrollment-backend
 
 수학학원 "한빛수학" 수강 신청과 출결 — 백엔드 (NestJS 12 + TypeORM, PostgreSQL 스키마 `hw2`).
-코어 웹(`hanbit-math-web`)과 어드민(`hanbit-math-admin`)이 함께 쓴다.
+코어 웹(`academy-enrollment-web`)과 어드민(`academy-enrollment-admin`)이 함께 쓴다.
 
 ## 실행
 ```bash
