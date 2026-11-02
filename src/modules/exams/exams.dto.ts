@@ -1,0 +1,45 @@
+import { Type } from 'class-transformer';
+import {
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Matches,
+  Max,
+  MaxLength,
+  Min,
+  ValidateNested,
+} from 'class-validator';
+import { DATE_PATTERN } from '../../common/dto/validation-messages.js';
+
+export class ScoreEntryDto {
+  @Type(() => Number)
+  @IsInt()
+  studentId: number;
+
+  /** 비우면 미응시 — 저장하지 않는다 */
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: '점수는 숫자로 입력해요.' })
+  @Min(0, { message: '점수는 0~100 사이로 입력해요.' })
+  @Max(100, { message: '점수는 0~100 사이로 입력해요.' })
+  score?: number | null;
+}
+
+export class SaveScoresDto {
+  @Type(() => Number)
+  @IsInt({ message: '반을 골라 주세요.' })
+  classId: number;
+
+  @IsString()
+  @IsNotEmpty({ message: '시험 이름을 적어 주세요.' })
+  @MaxLength(40)
+  examName: string;
+
+  @Matches(DATE_PATTERN, { message: '시험 날짜를 골라 주세요.' })
+  examDate: string;
+
+  @ValidateNested({ each: true })
+  @Type(() => ScoreEntryDto)
+  entries: ScoreEntryDto[];
+}

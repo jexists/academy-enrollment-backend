@@ -142,13 +142,16 @@ export class AuthService implements OnApplicationBootstrap {
       where: { role: In(APP_ROLES[app]) },
       order: { role: 'ASC', id: 'ASC' },
     });
-    return users.map((user) => ({
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      isActive: user.isActive,
-      mustChangePassword: user.mustChangePassword,
-    }));
+    // 정원 채우기용 학생(filler)은 버튼 목록에서 뺀다
+    return users
+      .filter((user) => !user.email.startsWith('filler'))
+      .map((user) => ({
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        isActive: user.isActive,
+        mustChangePassword: user.mustChangePassword,
+      }));
   }
 
   async me(userId: number): Promise<SessionUser> {

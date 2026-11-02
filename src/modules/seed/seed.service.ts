@@ -22,6 +22,8 @@ import {
 } from './seed-data.js';
 import { seedClasswork } from './seed-classwork.js';
 import { seedPayments } from './seed-payments.js';
+import { seedScores } from './seed-scores.js';
+import { ExamScore } from '../exams/exam-score.entity.js';
 import { TuitionPayment } from '../payments/tuition-payment.entity.js';
 
 /**
@@ -58,6 +60,10 @@ export class SeedService implements OnApplicationBootstrap {
     if (!(await this.dataSource.getRepository(TuitionPayment).exists())) {
       await this.dataSource.transaction((manager) => seedPayments(manager));
       this.logger.log('데모 데이터(납부)를 넣었어요');
+    }
+    if (!(await this.dataSource.getRepository(ExamScore).exists())) {
+      await this.dataSource.transaction((manager) => seedScores(manager));
+      this.logger.log('데모 데이터(성적)를 넣었어요');
     }
   }
 

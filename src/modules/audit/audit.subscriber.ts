@@ -3,6 +3,7 @@ import {
   DataSource,
   type EntitySubscriberInterface,
   type InsertEvent,
+  type RecoverEvent,
   type ObjectLiteral,
   type SoftRemoveEvent,
   type UpdateEvent,
@@ -71,11 +72,21 @@ export class AuditSubscriber implements EntitySubscriberInterface<BaseEntity> {
     await this.write(event, '삭제', event.databaseEntity, null);
   }
 
+  async afterRecover(event: RecoverEvent<BaseEntity>) {
+    await this.write(
+      event,
+      '수정',
+      { deletedAt: 'deleted' },
+      event.entity ?? null,
+    );
+  }
+
   private async write(
     event:
       | InsertEvent<BaseEntity>
       | UpdateEvent<BaseEntity>
-      | SoftRemoveEvent<BaseEntity>,
+      | SoftRemoveEvent<BaseEntity>
+      | RecoverEvent<BaseEntity>,
     action: AuditAction,
     before: ObjectLiteral | undefined | null,
     after: ObjectLiteral | undefined | null,

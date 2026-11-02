@@ -31,6 +31,10 @@ npm run start:dev      # http://localhost:4200/health
 | 수강 | `GET /parent/children`·`/parent/classes`, `GET·POST /parent/enrollments`, `POST .../cancel`·`refund-request` / `GET /admin/enrollments`, `POST .../approve`·`reject`·`finish`, `POST /admin/enrollments/phone` | 학부모 / 원장 |
 | 출결·보강 | `GET /staff/sessions`, `GET .../roster`, `PUT .../attendance`, `GET /staff/makeups`·`/staff/makeups/needed` / `GET·POST /admin/makeups(…)`, `POST .../confirm`·`reject` / `GET·POST /parent/makeups(…)` | 원장·강사(담당 반) / 원장 / 학부모 |
 | 학생 보기 | `GET /student/schedule`, `GET /student/attendance` / `GET /parent/attendance` | 학생 / 학부모 |
+| 대시보드 | `GET /admin/dashboard` / `GET /staff/dashboard`, `GET /staff/my-week` / `GET /parent/summary` | 원장 / 강사 / 학부모 |
+| 성적 | `GET /staff/scores/classes`, `GET·POST /staff/scores` / `GET /admin/students/:id/scores`, `/parent/scores`, `/student/scores` | 원장·강사(담당 반) / 보기 |
+| 직원·탈퇴 | `GET·POST /admin/staff`, `PATCH /admin/staff/:id`, `POST .../reset-password` / `GET·PATCH /parent/account`, `POST /parent/account/withdraw` | 원장 / 학부모 |
+| 기록 | `GET /admin/audit/changes`·`logins`·`deleted`, `POST /admin/audit/restore`, `DELETE /admin/notes/:id` | 원장 |
 | 돈 | `GET·POST /admin/payments`, `GET /admin/enrollments/:id/refund-preview` / `GET /parent/payments`, `GET /parent/enrollments/:id/refund-preview` | 원장 / 학부모 |
 
 - 업무 규칙은 `modules/*/*-rules.ts`(테스트 `*.spec.ts`): 학년 계산, 강사·학생 시간 겹침, 월 수업일, 수강 신청(중복·정원·학년), 출석률(지각 3 = 결석 1), 보강 조건, 형제 할인, 환불 구간

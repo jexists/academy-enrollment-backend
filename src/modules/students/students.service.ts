@@ -139,6 +139,13 @@ export class StudentsService {
           [row.family_id, id],
         ),
       ]);
+    const enrollments = await this.dataSource.query(
+      `SELECT e.id, e.status, c.name AS "className", u.name AS "teacherName", to_char(e.start_date, 'YYYY-MM-DD') AS "startDate",
+         to_char(e.end_date, 'YYYY-MM-DD') AS "endDate", e.refund_amount AS "refundAmount"
+       FROM hw2.enrollment e JOIN hw2.class c ON c.id = e.class_id JOIN hw2.teacher t ON t.id = c.teacher_id JOIN hw2.app_user u ON u.id = t.user_id
+       WHERE e.student_id = $1 AND e.deleted_at IS NULL ORDER BY e.created_at DESC`,
+      [id],
+    );
     return {
       ...this.toView(row),
       history,
@@ -146,6 +153,7 @@ export class StudentsService {
       guardians,
       notes,
       siblings,
+      enrollments,
     };
   }
 
