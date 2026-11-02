@@ -1,5 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AccountsService } from './accounts.service.js';
 import { AppUser } from './app-user.entity.js';
 import { LoginHistory } from './login-history.entity.js';
 
@@ -7,6 +8,7 @@ import { LoginHistory } from './login-history.entity.js';
 @Global()
 @Module({
   imports: [TypeOrmModule.forFeature([AppUser, LoginHistory])],
-  exports: [TypeOrmModule],
+  providers: [AccountsService],
+  exports: [TypeOrmModule, AccountsService],
 })
 export class UsersModule {}

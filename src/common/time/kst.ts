@@ -50,3 +50,8 @@ export function toKstIso(instant: Date): string {
 export function isDateKey(value: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value));
 }
+
+/** 오늘 날짜 (한국 시간) */
+export function todayKst(): DateKey {
+  return toKstDateKey(new Date());
+}
