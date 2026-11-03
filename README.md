@@ -1,5 +1,7 @@
 # academy-enrollment-backend
 
+
+**배포 주소**: https://academy-enrollment-backend.onrender.com/health — main에 push하면 자동으로 다시 배포돼요.
 수학학원 "한빛수학" 수강 신청과 출결 — 백엔드 (NestJS 12 + TypeORM, PostgreSQL 스키마 `hw2`).
 코어 웹(`academy-enrollment-web`)과 어드민(`academy-enrollment-admin`)이 함께 쓴다.
 
