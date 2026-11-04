@@ -8,6 +8,9 @@ export interface AppEnv {
   /** 로컬 전용 데모 로그인 버튼 */
   DEMO_LOGIN: boolean;
   DEMO_PASSWORD: string;
+  /** 문의 챗봇(Dify). 키가 비어 있으면 챗봇은 503 "준비 중"으로 답한다 */
+  DIFY_API_URL: string;
+  DIFY_API_KEY: string;
 }
 
 const REQUIRED_KEYS = [
@@ -40,5 +43,7 @@ export function validateEnv(raw: Record<string, unknown>): AppEnv {
     DEMO_LOGIN: text('DEMO_LOGIN') === 'true',
     // 비워 두면 데모 계정도 관리자 비밀번호를 쓴다
     DEMO_PASSWORD: text('DEMO_PASSWORD') || text('ADMIN_PASSWORD'),
+    DIFY_API_URL: text('DIFY_API_URL') || 'https://api.dify.ai/v1',
+    DIFY_API_KEY: text('DIFY_API_KEY'),
   };
 }

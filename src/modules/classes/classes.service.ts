@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { DataSource, type EntityManager } from 'typeorm';
 import { Teacher } from '../teachers/teacher.entity.js';
+import { normalizeBio, normalizeCareer } from '../teachers/teacher-profile.js';
 import { AccountsService } from '../users/accounts.service.js';
 import { ClassSchedule } from './class-schedule.entity.js';
 import { ClassSession } from './class-session.entity.js';
@@ -14,6 +15,7 @@ import type {
   CreateClassDto,
   CreateTeacherDto,
   UpdateClassDto,
+  UpdateTeacherProfileDto,
 } from './classes.dto.js';
 import {
   monthSessions,
@@ -188,7 +190,7 @@ export class ClassesService {
   teachers() {
     return this.dataSource.query(
       `SELECT t.id, u.id AS "userId", u.name, u.email, u.is_active AS "isActive", u.must_change_password AS "mustChangePassword",
-         t.subject, to_char(t.hired_at, 'YYYY-MM-DD') AS "hiredAt",
+         t.subject, to_char(t.hired_at, 'YYYY-MM-DD') AS "hiredAt", t.bio, t.career,
          COALESCE((SELECT json_agg(json_build_object('id', c.id, 'name', c.name) ORDER BY c.target_grade)
            FROM hw2.class c WHERE c.teacher_id = t.id AND c.is_active AND c.deleted_at IS NULL), '[]') AS classes
        FROM hw2.teacher t JOIN hw2.app_user u ON u.id = t.user_id
@@ -211,6 +213,8 @@ export class ClassesService {
           userId: account.user.id,
           subject: dto.subject.trim(),
           hiredAt: dto.hiredAt,
+          bio: normalizeBio(dto.bio),
+          career: normalizeCareer(dto.career),
         }),
       );
       return {
@@ -222,5 +226,16 @@ export class ClassesService {
         },
       };
     });
+  }
+
+  /** 강사 소개·이력 고치기 (결정41). 공개 강사진 화면에 바로 보인다 */
+  async updateTeacherProfile(id: number, dto: UpdateTeacherProfileDto) {
+    const repo = this.dataSource.getRepository(Teacher);
+    const teacher = await repo.findOneBy({ id });
+    if (!teacher) throw new NotFoundException('없는 강사예요.');
+    if (dto.bio !== undefined) teacher.bio = normalizeBio(dto.bio);
+    if (dto.career !== undefined) teacher.career = normalizeCareer(dto.career);
+    await repo.save(teacher);
+    return { ok: true };
   }
 }

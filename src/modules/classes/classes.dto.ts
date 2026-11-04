@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsBoolean,
@@ -11,6 +11,7 @@ import {
   Max,
   MaxLength,
   Min,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 import {
@@ -18,6 +19,13 @@ import {
   MSG,
   TIME_PATTERN,
 } from '../../common/dto/validation-messages.js';
+import {
+  BIO_MAX,
+  CAREER_LINE_MAX,
+  CAREER_MAX_LINES,
+  CAREER_PATTERN,
+  normalizeCareer,
+} from '../teachers/teacher-profile.js';
 
 export class SlotDto {
   @Type(() => Number)
@@ -103,7 +111,27 @@ export class GenerateSessionsDto {
   yearMonth: string;
 }
 
-export class CreateTeacherDto {
+/** 강사 소개 고치기 (결정41). 빈 글을 보내면 지운다 */
+export class UpdateTeacherProfileDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(BIO_MAX, { message: `소개는 ${BIO_MAX}자까지 쓸 수 있어요.` })
+  bio?: string;
+
+  // 줄 끝 공백·빈 줄을 먼저 정리하고 검사한다. 다 지우면 '' → 저장할 때 null
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? (normalizeCareer(value) ?? '') : value,
+  )
+  @IsOptional()
+  @IsString()
+  @ValidateIf((dto: UpdateTeacherProfileDto) => dto.career !== '')
+  @Matches(CAREER_PATTERN, {
+    message: `이력은 한 줄에 하나씩, ${CAREER_MAX_LINES}줄까지, 줄마다 ${CAREER_LINE_MAX}자까지 쓸 수 있어요.`,
+  })
+  career?: string;
+}
+
+export class CreateTeacherDto extends UpdateTeacherProfileDto {
   @IsString()
   @IsNotEmpty({ message: MSG.nameRequired })
   @MaxLength(40)

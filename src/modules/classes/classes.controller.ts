@@ -15,6 +15,7 @@ import {
   CreateTeacherDto,
   GenerateSessionsDto,
   UpdateClassDto,
+  UpdateTeacherProfileDto,
 } from './classes.dto.js';
 import { ClassesService } from './classes.service.js';
 
@@ -71,5 +72,13 @@ export class ClassesController {
   @Post('teachers')
   createTeacher(@Body() dto: CreateTeacherDto) {
     return this.classes.createTeacher(dto);
+  }
+
+  @Patch('teachers/:id')
+  updateTeacher(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateTeacherProfileDto,
+  ) {
+    return this.classes.updateTeacherProfile(id, dto);
   }
 }

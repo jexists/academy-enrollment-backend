@@ -12,4 +12,12 @@ export class Teacher extends BaseEntity {
 
   @Column({ name: 'hired_at', type: 'date' })
   hiredAt: string;
+
+  /** 소개 2~3문장 (300자). 첫 문장이 카드의 한 줄 소개 */
+  @Column({ type: 'text', nullable: true })
+  bio: string | null;
+
+  /** 이력 — 한 줄에 하나, 최대 6줄 (결정41) */
+  @Column({ type: 'text', nullable: true })
+  career: string | null;
 }

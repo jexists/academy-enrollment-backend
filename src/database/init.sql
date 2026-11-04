@@ -60,6 +60,9 @@ CREATE TABLE IF NOT EXISTS teacher (
   deleted_at timestamptz
 );
 CREATE UNIQUE INDEX IF NOT EXISTS teacher_user_key ON teacher (user_id) WHERE deleted_at IS NULL;
+-- 강사 소개 (결정41): 보여 주기만 하는 글이라 칸 두 개. 이력은 줄바꿈으로 나눈 text (최대 6줄은 백엔드가 검사)
+ALTER TABLE teacher ADD COLUMN IF NOT EXISTS bio text CONSTRAINT teacher_bio_check CHECK (char_length(bio) <= 300);
+ALTER TABLE teacher ADD COLUMN IF NOT EXISTS career text CONSTRAINT teacher_career_check CHECK (char_length(career) <= 400);
 
 CREATE TABLE IF NOT EXISTS student (
   id            serial PRIMARY KEY,

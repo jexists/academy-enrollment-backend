@@ -10,4 +10,10 @@ export class PublicController {
   classes() {
     return this.service.classes();
   }
+
+  /** 강사진 화면 (로그인 없이) */
+  @Get('teachers')
+  teachers() {
+    return this.service.teachers();
+  }
 }

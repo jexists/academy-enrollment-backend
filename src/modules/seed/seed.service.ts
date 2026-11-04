@@ -65,6 +65,29 @@ export class SeedService implements OnApplicationBootstrap {
       await this.dataSource.transaction((manager) => seedScores(manager));
       this.logger.log('데모 데이터(성적)를 넣었어요');
     }
+    await this.fillTeacherProfiles();
+  }
+
+  /**
+   * 강사 소개(결정41)는 나중에 생긴 칸이라, 이미 시드가 들어간 DB에도 채운다.
+   * 소개가 비어 있는 시드 강사만 이메일로 찾아 채우고, 원장이 고친 값과 다른 강사는 건드리지 않는다.
+   */
+  private async fillTeacherProfiles() {
+    let filled = 0;
+    for (const t of SEED_TEACHERS) {
+      // UPDATE를 WITH로 감싸 몇 행을 고쳤는지 SELECT 결과로 받는다
+      const [{ n }]: { n: number }[] = await this.dataSource.query(
+        `WITH up AS (
+           UPDATE hw2.teacher t SET bio = $2, career = $3, updated_at = now()
+           FROM hw2.app_user u
+           WHERE u.id = t.user_id AND lower(u.email) = $1 AND t.bio IS NULL AND t.career IS NULL AND t.deleted_at IS NULL
+           RETURNING t.id)
+         SELECT count(*)::int AS n FROM up`,
+        [t.email.toLowerCase(), t.bio, t.career],
+      );
+      filled += n;
+    }
+    if (filled > 0) this.logger.log(`강사 소개 ${filled}명을 채웠어요`);
   }
 
   private async seed(m: EntityManager, passwordHash: string) {
@@ -101,6 +124,8 @@ export class SeedService implements OnApplicationBootstrap {
           userId: user.id,
           subject: t.subject,
           hiredAt: t.hiredAt,
+          bio: t.bio,
+          career: t.career,
         }),
       );
       teachers.set(t.key, { teacher, userId: user.id });
