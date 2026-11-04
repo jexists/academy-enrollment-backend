@@ -1,5 +1,6 @@
 import { Transform, Type } from 'class-transformer';
 import {
+  IsArray,
   ArrayMinSize,
   IsBoolean,
   IsEmail,
@@ -72,6 +73,7 @@ export class CreateClassDto {
   @MaxLength(200)
   intro?: string;
 
+  @IsArray({ message: '정규 요일을 하나 이상 넣어 주세요.' })
   @ValidateNested({ each: true })
   @Type(() => SlotDto)
   @ArrayMinSize(1, { message: '정규 요일을 하나 이상 넣어 주세요.' })

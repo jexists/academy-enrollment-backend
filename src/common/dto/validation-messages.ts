@@ -1,6 +1,6 @@
 // 여러 DTO에서 같이 쓰는 입력 규칙과 안내 문구
 export const PHONE_PATTERN = /^010-?\d{4}-?\d{4}$/;
-export const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+export const DATE_PATTERN = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 export const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 export const MSG = {

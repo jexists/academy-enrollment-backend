@@ -3,6 +3,7 @@ import {
   IsIn,
   IsInt,
   IsOptional,
+  IsArray,
   IsString,
   Matches,
   MaxLength,
@@ -28,6 +29,7 @@ export class AttendanceRowDto {
 }
 
 export class SaveAttendanceDto {
+  @IsArray({ message: '출결 목록을 보내 주세요.' })
   @ValidateNested({ each: true })
   @Type(() => AttendanceRowDto)
   rows: AttendanceRowDto[];

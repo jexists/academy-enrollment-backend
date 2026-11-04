@@ -86,6 +86,11 @@ export class AttendanceService {
   ) {
     if (dto.endTime <= dto.startTime)
       throw new BadRequestException('끝나는 시간이 시작 시간보다 늦어야 해요.');
+    const [cls] = await m.query<{ id: number }[]>(
+      'SELECT id FROM class WHERE id = $1 AND deleted_at IS NULL',
+      [classId],
+    );
+    if (!cls) throw new NotFoundException('없는 반이에요.');
     const saved = await m.save(
       m.create(ClassSession, {
         classId,

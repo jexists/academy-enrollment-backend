@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsInt,
   IsNotEmpty,
   IsOptional,
@@ -39,6 +40,7 @@ export class SaveScoresDto {
   @Matches(DATE_PATTERN, { message: '시험 날짜를 골라 주세요.' })
   examDate: string;
 
+  @IsArray({ message: '점수 목록을 보내 주세요.' })
   @ValidateNested({ each: true })
   @Type(() => ScoreEntryDto)
   entries: ScoreEntryDto[];

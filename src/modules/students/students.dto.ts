@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import {
+  IsArray,
   ArrayMaxSize,
   IsEmail,
   IsIn,
@@ -69,6 +70,7 @@ export class RegisterStudentDto {
   @IsNotEmpty({ message: '가족 이름을 적어 주세요. (예: 김민준 가족)' })
   familyName?: string;
 
+  @IsArray({ message: '보호자 목록을 보내 주세요.' })
   @ValidateNested({ each: true })
   @Type(() => GuardianDto)
   @ArrayMaxSize(4)
