@@ -16,6 +16,9 @@ export type ClientEvent =
   | { event: 'error'; data: { message: string } };
 
 export const SNIPPET_LENGTH = 200;
+
+/** 합친 지식 파일(docs/academy/dify)의 원래 문서 표시 줄 */
+const DOC_MARKER = /문서:\s*(\d{2}-[a-z-]+\.md)/i;
 export const MAX_SOURCES = 5;
 
 export const CHAT_MESSAGES = {
@@ -60,15 +63,16 @@ export function toSources(resources: unknown): ChatSource[] {
   return (resources as DifyRetrieverResource[])
     .filter((r) => r && typeof r === 'object')
     .map((r) => {
-      const content =
-        typeof r.content === 'string'
-          ? r.content.replace(/\s+/g, ' ').trim()
-          : '';
+      const raw = typeof r.content === 'string' ? r.content : '';
+      // 합친 지식 파일은 청크마다 "문서: 02-fees.md" 줄로 원래 문서를 적어 둔다
+      const origin = DOC_MARKER.exec(raw)?.[1];
+      const content = raw.replace(DOC_MARKER, ' ').replace(/\s+/g, ' ').trim();
       return {
         document:
-          typeof r.document_name === 'string' && r.document_name.trim()
+          origin ??
+          (typeof r.document_name === 'string' && r.document_name.trim()
             ? r.document_name.trim()
-            : '학원 안내 문서',
+            : '학원 안내 문서'),
         snippet:
           content.length > SNIPPET_LENGTH
             ? `${content.slice(0, SNIPPET_LENGTH)}…`
@@ -162,3 +166,44 @@ export function mapDifyPayload(payload: string): {
 export function formatSse(event: ClientEvent): string {
   return `event: ${event.event}\ndata: ${JSON.stringify(event.data)}\n\n`;
 }
+
+/** 한 번의 문의에서 화면으로 보낸 이벤트를 모아 기록(chat_log)으로 만든다 */
+export interface ChatRecord {
+  answer: string;
+  sources: ChatSource[];
+  conversationId: string;
+  status: '완료' | '멈춤' | '오류';
+  error: string | null;
+}
+
+export function createChatRecorder(conversationId = '') {
+  let answer = '';
+  let sources: ChatSource[] = [];
+  let conversation = conversationId;
+  let status: ChatRecord['status'] | null = null;
+  let error: string | null = null;
+  return {
+    add(event: ClientEvent) {
+      if (event.event === 'delta') answer += event.data.text;
+      else if (event.event === 'end') {
+        sources = event.data.sources;
+        conversation = event.data.conversationId || conversation;
+        status = '완료';
+      } else {
+        status = '오류';
+        error = event.data.message.slice(0, 200);
+      }
+    },
+    /** 끝까지 못 받았으면: 화면이 끊었으면 '멈춤', 아니면 '오류' */
+    finish(aborted: boolean): ChatRecord {
+      return {
+        answer,
+        sources,
+        conversationId: conversation,
+        status: status ?? (aborted ? '멈춤' : '오류'),
+        error: status === null && !aborted ? CHAT_MESSAGES.failed : error,
+      };
+    },
+  };
+}
+

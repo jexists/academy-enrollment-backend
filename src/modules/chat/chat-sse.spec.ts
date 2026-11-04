@@ -5,6 +5,7 @@ import {
   mapDifyPayload,
   parseSseChunk,
   toSources,
+  createChatRecorder,
 } from './chat-sse.js';
 
 describe('SSE 줄 파서', () => {
@@ -30,6 +31,18 @@ describe('SSE 줄 파서', () => {
 });
 
 describe('근거 변환', () => {
+  it('합친 파일이면 청크의 "문서:" 줄로 원래 문서를 찾고 그 줄은 뺀다', () => {
+    const [source] = toSources([
+      {
+        document_name: '한빛수학-학원안내.md',
+        content: '수강료 및 환불 규정 · 제5조 (환불 기준)\n문서: 02-fees.md\n수업 시작 전 전액',
+        score: 0.5,
+      },
+    ]);
+    expect(source.document).toBe('02-fees.md');
+    expect(source.snippet).toBe('수강료 및 환불 규정 · 제5조 (환불 기준) 수업 시작 전 전액');
+  });
+
   it('문서 이름, 내용 앞 200자, 점수만 남긴다', () => {
     const long = '가'.repeat(250);
     const [source] = toSources([
@@ -120,3 +133,49 @@ describe('SSE 쓰기', () => {
     );
   });
 });
+
+describe('대화 기록 모으기 (결정42)', () => {
+  const end = {
+    event: 'end' as const,
+    data: {
+      conversationId: 'c-1',
+      sources: [{ document: '02-fees.md', snippet: '환불', score: 0.5 }],
+    },
+  };
+
+  it('글자를 이어 붙이고 끝나면 완료와 근거를 남긴다', () => {
+    const rec = createChatRecorder();
+    rec.add({ event: 'delta', data: { text: '전액을 ' } });
+    rec.add({ event: 'delta', data: { text: '돌려받아요.' } });
+    rec.add(end);
+    expect(rec.finish(false)).toEqual({
+      answer: '전액을 돌려받아요.',
+      sources: end.data.sources,
+      conversationId: 'c-1',
+      status: '완료',
+      error: null,
+    });
+  });
+
+  it('화면이 중간에 끊으면 멈춤, 받은 글자까지 남긴다', () => {
+    const rec = createChatRecorder('c-0');
+    rec.add({ event: 'delta', data: { text: '전액' } });
+    expect(rec.finish(true)).toMatchObject({
+      answer: '전액',
+      status: '멈춤',
+      conversationId: 'c-0',
+      error: null,
+    });
+  });
+
+  it('오류 이벤트나 끝 없이 닫히면 오류', () => {
+    const rec = createChatRecorder();
+    rec.add({ event: 'error', data: { message: '지금 문의가 많아요.' } });
+    expect(rec.finish(false)).toMatchObject({
+      status: '오류',
+      error: '지금 문의가 많아요.',
+    });
+    expect(createChatRecorder().finish(false).status).toBe('오류');
+  });
+});
+

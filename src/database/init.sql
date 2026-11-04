@@ -302,6 +302,26 @@ CREATE TABLE IF NOT EXISTS login_history (
 );
 CREATE INDEX IF NOT EXISTS login_history_user_idx ON login_history (user_id, created_at DESC);
 
+-- 문의하기 대화 기록 (결정42). 쌓기만 한다. 로그인 여부는 user_id가 있는지로 계산하고, 손님은 브라우저 번호만 남긴다(IP는 남기지 않음)
+CREATE TABLE IF NOT EXISTS chat_log (
+  id              serial PRIMARY KEY,
+  user_id         int REFERENCES app_user(id),
+  guest_id        uuid,
+  role            varchar(10),
+  conversation_id varchar(64),
+  query           text NOT NULL,
+  answer          text NOT NULL DEFAULT '',
+  sources         jsonb NOT NULL DEFAULT '[]',
+  status          varchar(2) NOT NULL CONSTRAINT chat_log_status_check CHECK (status IN ('완료', '멈춤', '오류')),
+  error           varchar(200),
+  duration_ms     int,
+  created_at      timestamptz NOT NULL DEFAULT now(),
+  -- 로그인 사용자와 손님 중 정확히 하나
+  CONSTRAINT chat_log_who_check CHECK ((user_id IS NULL) <> (guest_id IS NULL))
+);
+CREATE INDEX IF NOT EXISTS chat_log_created_idx ON chat_log (created_at DESC);
+CREATE INDEX IF NOT EXISTS chat_log_user_idx ON chat_log (user_id, created_at DESC);
+
 CREATE TABLE IF NOT EXISTS audit_log (
   id         serial PRIMARY KEY,
   user_id    int REFERENCES app_user(id),   -- 시스템(시드·자동 생성)이면 null

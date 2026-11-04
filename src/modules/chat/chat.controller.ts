@@ -1,9 +1,19 @@
-import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
-import { formatSse } from './chat-sse.js';
+import { Auth } from '../../common/decorators/auth.decorator.js';
+import { createChatRecorder, formatSse } from './chat-sse.js';
 import { ChatMessageDto } from './chat.dto.js';
-import { ChatService } from './chat.service.js';
+import { ChatService, type ChatLogFilter } from './chat.service.js';
 
 @Controller('chat')
 export class ChatController {
@@ -25,10 +35,12 @@ export class ChatController {
     // 키가 없으면 SSE를 열기 전에 503으로 돌려준다
     this.chat.assertReady();
     const guestHeader = req.headers['x-chat-guest'];
-    const user = await this.chat.difyUser(
+    const asker = await this.chat.asker(
       req.headers.authorization,
       typeof guestHeader === 'string' ? guestHeader : undefined,
     );
+    const startedAt = Date.now();
+    const recorder = createChatRecorder(dto.conversationId);
 
     const controller = new AbortController();
     res.on('close', () => {
@@ -43,12 +55,38 @@ export class ChatController {
     res.flushHeaders();
 
     await this.chat.stream(
-      { query: dto.query, conversationId: dto.conversationId, user },
+      {
+        query: dto.query,
+        conversationId: dto.conversationId,
+        user: asker.difyUser,
+      },
       controller.signal,
       (event) => {
+        recorder.add(event);
         if (!controller.signal.aborted) res.write(formatSse(event));
       },
     );
     if (!res.writableEnded) res.end();
+    // 답을 다 보낸 뒤 기록한다 (정상·멈춤·오류 모두, 결정42)
+    await this.chat.saveLog(
+      asker,
+      dto.query,
+      recorder.finish(controller.signal.aborted),
+      Date.now() - startedAt,
+    );
+  }
+}
+
+/** 문의 기록 — 원장만 (결정42) */
+@Controller('admin/chat-logs')
+@Auth('ADMIN')
+export class ChatLogController {
+  constructor(private readonly chat: ChatService) {}
+
+  @Get()
+  list(@Query('who') who?: string) {
+    const filter: ChatLogFilter =
+      who === 'member' || who === 'guest' ? who : 'all';
+    return this.chat.listLogs(filter);
   }
 }
