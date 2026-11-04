@@ -25,6 +25,8 @@ export interface MakeupCheckInput {
   absence: {
     date: DateKey;
     status: string;
+    /** 수강(자기 반) 결석만 보강 대상. 보강 수업 결석은 다시 보강하지 않는다 */
+    attendType: string;
     classId: number;
     targetGrade: number;
   };
@@ -49,6 +51,8 @@ export function makeupProblem(input: MakeupCheckInput): string | null {
   const { absence, target } = input;
   if (absence.status !== '결석')
     return '결석한 수업만 보강을 신청할 수 있어요.';
+  if (absence.attendType !== '수강')
+    return '보강 수업 결석은 다시 보강할 수 없어요.';
   if (input.absencesInMonth < 2)
     return '이번 달 결석이 2회 미만이라 보강을 신청할 수 없어요.';
   if (target.classId === absence.classId)

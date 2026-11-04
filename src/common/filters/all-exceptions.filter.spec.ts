@@ -4,9 +4,11 @@ import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
 import { QueryFailedError } from 'typeorm';
 import { SaveAttendanceDto } from '../../modules/attendance/attendance.dto.js';
+import { ScoreEntryDto } from '../../modules/exams/exams.dto.js';
 import { GradeAdjustmentDto } from '../../modules/students/students.dto.js';
 import { DATE_PATTERN } from '../dto/validation-messages.js';
 import { AllExceptionsFilter } from './all-exceptions.filter.js';
+import { koreanConstraint } from './validation-exception.factory.js';
 
 /** 필터가 보낸 응답 본문을 꺼낸다 */
 function respond(exception: unknown) {
@@ -67,5 +69,20 @@ describe('입력 검사 (QA BUG-001·003)', () => {
   it('출결 저장에 rows가 없으면 입력 오류(500이 아님)', () => {
     const dto = plainToInstance(SaveAttendanceDto, {});
     expect(validateSync(dto).map((e) => e.property)).toContain('rows');
+  });
+
+  it('성적 빈 문자열은 0점이 아니라 미응시(null) (QA BUG-007)', () => {
+    const blank = plainToInstance(ScoreEntryDto, { studentId: 1, score: '' });
+    expect(blank.score).toBeNull();
+    expect(validateSync(blank)).toHaveLength(0);
+    const zero = plainToInstance(ScoreEntryDto, { studentId: 1, score: 0 });
+    expect(zero.score).toBe(0);
+    const text = plainToInstance(ScoreEntryDto, { studentId: 1, score: 'abc' });
+    expect(validateSync(text).length).toBeGreaterThan(0);
+  });
+
+  it('문구 없는 길이 검사도 한국어로 (QA BUG-008)', () => {
+    expect(koreanConstraint('maxLength', 'name must be shorter than or equal to 40 characters')).toBe('40자까지 적을 수 있어요.');
+    expect(koreanConstraint('isInt', '점수는 숫자로 입력해요.')).toBe('점수는 숫자로 입력해요.');
   });
 });

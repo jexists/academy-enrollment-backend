@@ -147,9 +147,19 @@ export class EnrollmentsService {
         '승인 전 신청만 취소할 수 있어요. 수강 중이면 환불 신청을 해 주세요.',
       );
     }
-    enrollment.status = '취소';
-    await this.dataSource.getRepository(Enrollment).save(enrollment);
-    return { ok: true };
+    return this.dataSource.transaction(async (m) => {
+      const locked = await m.findOne(Enrollment, {
+        where: { id: enrollment.id },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (locked?.status !== '신청됨')
+        throw new BadRequestException(
+          '승인 전 신청만 취소할 수 있어요. 수강 중이면 환불 신청을 해 주세요.',
+        );
+      locked.status = '취소';
+      await m.save(locked);
+      return { ok: true };
+    });
   }
 
   async parentEnrollments(parentUserId: number) {
@@ -200,12 +210,7 @@ export class EnrollmentsService {
   /** 승인: 규칙을 한 번 더 검사하고 수강중으로 (결정7). 같은 반 동시 승인은 반 행을 잠가 정원을 지킨다 */
   async approve(id: number, staffId: number) {
     return this.dataSource.transaction(async (m) => {
-      const enrollment = await m.findOneBy(Enrollment, { id });
-      if (!enrollment) throw new NotFoundException('없는 신청이에요.');
-      if (enrollment.status !== '신청됨')
-        throw new BadRequestException(
-          `이미 처리된 신청이에요. (${enrollment.status})`,
-        );
+      const enrollment = await this.lockPending(m, id);
       await m.query(`SELECT id FROM hw2.class WHERE id = $1 FOR UPDATE`, [
         enrollment.classId,
       ]);
@@ -231,20 +236,30 @@ export class EnrollmentsService {
   }
 
   async reject(id: number, staffId: number) {
-    const repo = this.dataSource.getRepository(Enrollment);
-    const enrollment = await repo.findOneBy({ id });
+    return this.dataSource.transaction(async (m) => {
+      const enrollment = await this.lockPending(m, id);
+      Object.assign(enrollment, {
+        status: '거절',
+        decidedBy: staffId,
+        decidedAt: new Date(),
+      });
+      await m.save(enrollment);
+      return { ok: true };
+    });
+  }
+
+  /** 신청 행을 잠그고 아직 신청됨인지 본다 — 승인·거절·취소가 동시에 와도 한 번만 처리 (QA BUG-006) */
+  private async lockPending(m: EntityManager, id: number) {
+    const enrollment = await m.findOne(Enrollment, {
+      where: { id },
+      lock: { mode: 'pessimistic_write' },
+    });
     if (!enrollment) throw new NotFoundException('없는 신청이에요.');
     if (enrollment.status !== '신청됨')
       throw new BadRequestException(
         `이미 처리된 신청이에요. (${enrollment.status})`,
       );
-    Object.assign(enrollment, {
-      status: '거절',
-      decidedBy: staffId,
-      decidedAt: new Date(),
-    });
-    await repo.save(enrollment);
-    return { ok: true };
+    return enrollment;
   }
 
   /** 전화 신청 대신 등록: 같은 규칙 검사 후 바로 수강중 (결정20) */
