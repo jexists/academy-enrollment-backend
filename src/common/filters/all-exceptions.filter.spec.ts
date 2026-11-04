@@ -36,6 +36,11 @@ describe('오류 응답 (QA BUG-001·003)', () => {
     expect(r.body.message).toContain('날짜');
   });
 
+  it('정수 범위를 넘는 숫자(DB 22003)도 400 (QA BUG-017)', () => {
+    const err = new QueryFailedError('', [], Object.assign(new Error('x'), { code: '22003' }));
+    expect(respond(err).status).toBe(400);
+  });
+
   it('ParseIntPipe의 영어 문구를 한국어로', () => {
     const r = respond(new BadRequestException('Validation failed (numeric string is expected)'));
     expect(r.status).toBe(400);

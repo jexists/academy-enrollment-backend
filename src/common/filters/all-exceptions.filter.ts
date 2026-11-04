@@ -126,6 +126,12 @@ export class AllExceptionsFilter implements ExceptionFilter {
           statusCode: HttpStatus.BAD_REQUEST,
           message: '날짜나 시간을 다시 확인해 주세요.',
         };
+      // 정수 범위를 넘는 숫자 (QA BUG-017)
+      if (code === '22003')
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: '숫자가 너무 커요. 다시 확인해 주세요.',
+        };
     }
 
     this.logger.error(exception);
