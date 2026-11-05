@@ -38,6 +38,10 @@
 
 ## 화면 캡처
 
+<a href="https://github.com/jexists/academy-enrollment-web/blob/main/docs/%ED%95%9C%EB%B9%9B%EC%88%98%ED%95%99-%EB%8D%B0%EB%AA%A8.mp4"><img src="https://github.com/jexists/academy-enrollment-web/blob/main/docs/captures/00-demo-video.png?raw=true" alt="한빛수학 시연 영상 첫 화면" width="480"></a>
+
+[시연 영상 보기](<https://github.com/jexists/academy-enrollment-web/blob/main/docs/%ED%95%9C%EB%B9%9B%EC%88%98%ED%95%99-%EB%8D%B0%EB%AA%A8.mp4>) (1분 41초, 음성 포함)
+
 [규칙 거절 응답](https://github.com/jexists/academy-enrollment-web/blob/main/docs/captures/40-api-rejections.png) &nbsp;·&nbsp; [DB 제약: 수강 중복 거절](https://github.com/jexists/academy-enrollment-web/blob/main/docs/captures/43-dbeaver-B6-enrollment.png) &nbsp;·&nbsp; [DB 제약: 출결 중복 거절](https://github.com/jexists/academy-enrollment-web/blob/main/docs/captures/44-dbeaver-B10-attendance.png)
 
 전체 캡처 폴더: [academy-enrollment-web/docs/captures](https://github.com/jexists/academy-enrollment-web/tree/main/docs/captures)
