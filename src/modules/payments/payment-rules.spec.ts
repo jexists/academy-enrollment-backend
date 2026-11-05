@@ -1,4 +1,5 @@
 import {
+  refundNeedsRecalc,
   refundAmount,
   siblingDiscount,
   siblingOrders,
@@ -41,5 +42,21 @@ describe('환불 (D20, 결정12) — 월 280,000원, 수업 8회', () => {
       refundAmount({ charged: 252000, totalSessions: 8, passedSessions: 1 })
         .amount,
     ).toBe(168000);
+  });
+});
+
+describe('종료 뒤 납부하면 환불 다시 계산 (QA BUG-009)', () => {
+  it('그만둔 달의 납부면 다시 계산', () => {
+    expect(
+      refundNeedsRecalc({ status: '수강종료', endDate: '2026-11-05', paidMonth: '2026-11' }),
+    ).toBe(true);
+  });
+  it('다른 달 납부·아직 다니는 수강이면 안 함', () => {
+    expect(
+      refundNeedsRecalc({ status: '수강종료', endDate: '2026-10-31', paidMonth: '2026-11' }),
+    ).toBe(false);
+    expect(
+      refundNeedsRecalc({ status: '수강중', endDate: null, paidMonth: '2026-11' }),
+    ).toBe(false);
   });
 });
