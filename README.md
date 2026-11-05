@@ -1,66 +1,46 @@
+<div align="center">
+
 # 한빛수학 백엔드
 
-수학학원 "한빛수학"의 코어 웹과 어드민이 함께 쓰는 API 서버예요. 수강·출결·보강·환불 규칙을 서버에서 검사하고, 거절할 때는 이유를 쉬운 말로 돌려줘요. AX Campus 3회차 과제로 만든 서비스이고, 학원과 사람, 숫자는 모두 가상이에요.
+**코어 웹과 어드민이 함께 쓰는 API 서버**
 
-## 관련 링크
+수강·출결·보강·환불 규칙 검사, 거절 사유 안내 제공
 
-| 구분 | 서비스 | GitHub 저장소 |
-|---|---|---|
-| 코어 웹 | [웹사이트 열기](https://academy-enrollment-web.vercel.app) | [academy-enrollment-web](https://github.com/jexists/academy-enrollment-web) |
-| 어드민 | [웹사이트 열기](https://academy-enrollment-admin.vercel.app) | [academy-enrollment-admin](https://github.com/jexists/academy-enrollment-admin) |
-| 백엔드 API | [서버 상태 보기](https://academy-enrollment-backend.onrender.com/health) | [academy-enrollment-backend](https://github.com/jexists/academy-enrollment-backend) (현재 저장소) |
+<a href="https://academy-enrollment-web.vercel.app"><img src="https://img.shields.io/badge/%EC%BD%94%EC%96%B4%20%EC%9B%B9%20%EB%B0%94%EB%A1%9C%EA%B0%80%EA%B8%B0-111827?style=for-the-badge&logo=vercel&logoColor=white" alt="코어 웹 바로가기"></a> <a href="https://academy-enrollment-admin.vercel.app"><img src="https://img.shields.io/badge/%EC%96%B4%EB%93%9C%EB%AF%BC%20%EB%B0%94%EB%A1%9C%EA%B0%80%EA%B8%B0-111827?style=for-the-badge&logo=vercel&logoColor=white" alt="어드민 바로가기"></a> <a href="https://academy-enrollment-backend.onrender.com/health"><img src="https://img.shields.io/badge/%EB%B0%B1%EC%97%94%EB%93%9C%20%EC%83%81%ED%83%9C%20%EB%B3%B4%EA%B8%B0-111827?style=for-the-badge&logo=render&logoColor=white" alt="백엔드 상태 보기"></a> <a href="https://jexists.github.io/academy-enrollment-web/"><img src="https://img.shields.io/badge/%EB%B0%9C%ED%91%9C%EC%9E%90%EB%A3%8C%20%EB%B3%B4%EB%9F%AC%EA%B0%80%EA%B8%B0-FF5D00?style=for-the-badge" alt="발표자료 보러가기"></a>
 
-**발표 자료**: [HTML 슬라이드 27장 보기](https://jexists.github.io/academy-enrollment-web/)
+<sub>코어 웹 <a href="https://github.com/jexists/academy-enrollment-web">저장소</a> &nbsp;·&nbsp; 어드민 <a href="https://github.com/jexists/academy-enrollment-admin">저장소</a> &nbsp;·&nbsp; <b>백엔드</b> <a href="https://github.com/jexists/academy-enrollment-backend">저장소</a></sub>
 
-> 무료 서버라서 15분 동안 요청이 없으면 잠들어요. 이때 첫 접속은 1분 가까이 걸릴 수 있어요.
+</div>
+
+> AX Campus 3회차 과제 결과물. 학원·인물·수치는 모두 가상.
+>
+> 무료 서버 특성상 15분 미사용 시 절전 상태로 전환, 첫 접속에 최대 1분 소요.
 
 ## 기술 스택
 
-**Backend**
-
-<table>
-  <tr>
-    <td align="center" width="96"><img src="https://cdn.simpleicons.org/nestjs" width="28" height="28" alt="NestJS"><br><sub>NestJS</sub></td>
-    <td align="center" width="96"><img src="https://cdn.simpleicons.org/typescript" width="28" height="28" alt="TypeScript"><br><sub>TypeScript</sub></td>
-    <td align="center" width="96"><img src="https://cdn.simpleicons.org/typeorm" width="28" height="28" alt="TypeORM"><br><sub>TypeORM</sub></td>
-    <td align="center" width="96"><img src="https://cdn.simpleicons.org/vitest" width="28" height="28" alt="Vitest"><br><sub>Vitest</sub></td>
-  </tr>
-</table>
-
-**Database**
-
-<table>
-  <tr>
-    <td align="center" width="96"><img src="https://cdn.simpleicons.org/postgresql" width="28" height="28" alt="PostgreSQL"><br><sub>PostgreSQL</sub></td>
-  </tr>
-</table>
-
-**AI / External API**
-
-<table>
-  <tr>
-    <td align="center" width="96"><img src="https://cdn.simpleicons.org/dify" width="28" height="28" alt="Dify"><br><sub>Dify</sub></td>
-  </tr>
-</table>
-
-**Deployment**
-
-<table>
-  <tr>
-    <td align="center" width="96"><picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/render/ffffff"><img src="https://cdn.simpleicons.org/render/000000" width="28" height="28" alt="Render"></picture><br><sub>Render</sub></td>
-  </tr>
-</table>
+| 구분 | 기술 |
+|---|---|
+| Backend | ![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white) ![TypeORM](https://img.shields.io/badge/TypeORM-FE0803?style=for-the-badge&logo=typeorm&logoColor=white) ![Vitest](https://img.shields.io/badge/Vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white) |
+| Database | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white) |
+| AI / External API | ![Dify](https://img.shields.io/badge/Dify-1C64F2?style=for-the-badge&logo=dify&logoColor=white) |
+| Deployment | ![Render](https://img.shields.io/badge/Render-000000?style=for-the-badge&logo=render&logoColor=white) |
 
 ## 주요 기능
 
-- **인증·권한**: JWT와 bcrypt로 로그인을 처리하고, 원장·강사·학부모·학생 역할별로 API를 나눠요. 요청마다 계정을 다시 확인해서 사용 중지 계정과 임시 비밀번호 계정을 막아요.
-- **수강 규칙**: 같은 반 중복, 정원, 학년 일치, 학생·강사 시간 겹침을 신청과 승인 때 모두 검사해요.
-- **출결·보강**: 지각 3번을 결석 1번으로 계산하고, 결석 횟수와 그날 정원을 확인해 보강 자격을 판단해요.
-- **환불·할인**: 그 달 실제 수업 수를 기준으로 환불액을 계산하고, 둘째 자녀부터 형제 할인 10%를 적용해요.
-- **변경 기록**: 저장할 때마다 작성자와 전후 값을 `audit_log`에 남겨요. 삭제는 soft delete라서 되살릴 수 있어요.
-- **문의 챗봇**: Dify 답변을 SSE로 전달하고, 질문과 근거 문서를 `chat_log`에 남겨요. 한 IP당 1분에 10번으로 제한해요.
+| 기능 | 내용 |
+|---|---|
+| **인증·권한** | JWT·bcrypt 로그인, 역할별 API 분리, 요청마다 계정 재확인(사용 중지·임시 비밀번호 차단) |
+| **수강 규칙** | 같은 반 중복, 정원, 학년 일치, 학생·강사 시간 겹침 검사 |
+| **출결·보강** | 지각 3회 = 결석 1회 환산, 결석 횟수·정원 기준 보강 자격 판단 |
+| **환불·할인** | 실제 수업 수 기준 환불액 계산, 둘째부터 형제 할인 10% |
+| **변경 기록** | `audit_log` 전후 값 기록, soft delete 복원 |
+| **문의 챗봇** | Dify 답변 SSE 전달, `chat_log` 질문·근거 기록, IP당 분당 10회 제한 |
 
-<img src="https://raw.githubusercontent.com/jexists/academy-enrollment-web/main/docs/captures/40-api-rejections.png" width="720" alt="규칙을 어긴 요청에 대한 실제 거절 응답 목록">
+## 화면 캡처
+
+[규칙 거절 응답](https://github.com/jexists/academy-enrollment-web/blob/main/docs/captures/40-api-rejections.png) &nbsp;·&nbsp; [DB 제약: 수강 중복 거절](https://github.com/jexists/academy-enrollment-web/blob/main/docs/captures/43-dbeaver-B6-enrollment.png) &nbsp;·&nbsp; [DB 제약: 출결 중복 거절](https://github.com/jexists/academy-enrollment-web/blob/main/docs/captures/44-dbeaver-B10-attendance.png)
+
+전체 캡처 폴더: [academy-enrollment-web/docs/captures](https://github.com/jexists/academy-enrollment-web/tree/main/docs/captures)
 
 ## 시스템 구조
 
@@ -83,7 +63,7 @@ flowchart LR
 
 ## DB 구조
 
-테이블은 20개이고, 모든 테이블에 작성·수정 정보와 `deleted_at` 칼럼이 있어요. 아래는 수강과 출결을 중심으로 추린 관계예요. 전체 정의는 [init.sql](src/database/init.sql)에 있어요.
+전체 20개 테이블, 공통 칼럼으로 작성·수정 정보와 `deleted_at` 보유. 아래는 수강·출결 중심의 핵심 관계. 전체 정의는 [init.sql](src/database/init.sql) 참고.
 
 ```mermaid
 erDiagram
@@ -105,23 +85,25 @@ erDiagram
   student ||--o{ exam_score : "성적"
 ```
 
-정원·중복 같은 규칙은 서버에서 검사하고, 이메일과 진행 중 수강의 중복은 DB의 부분 UNIQUE 제약으로도 한 번 더 막아요.
+정원·학년 등은 서버에서 검사, 이메일·진행 중 수강 중복은 DB 부분 UNIQUE 제약으로 이중 차단.
 
 ## 프로젝트 구조
+
+<details>
+<summary>폴더 구조 보기</summary>
 
 ```text
 src/
 ├── common/       # 인증 가드, 예외 필터, 시간 처리
 ├── config/       # 환경 변수 검증
-├── database/     # init.sql (테이블과 제약의 원본)
+├── database/     # init.sql (테이블·제약 원본)
 ├── modules/      # 업무별 모듈 (enrollments, attendance, payments, chat 등)
-│   └── */*-rules.ts   # 업무 규칙 순수 함수와 테스트
+│   └── */*-rules.ts   # 업무 규칙 순수 함수·테스트
 └── main.ts
 ```
 
+</details>
+
 ## 문서
 
-- [테이블과 제약 전체](src/database/init.sql)
-- [수강 신청 규칙](src/modules/enrollments/enrollment-rules.ts)
-- [출결·보강 규칙](src/modules/attendance/attendance-rules.ts)
-- [환불·할인 규칙](src/modules/payments/payment-rules.ts)
+[테이블·제약 전체](src/database/init.sql) &nbsp;·&nbsp; [수강 신청 규칙](src/modules/enrollments/enrollment-rules.ts) &nbsp;·&nbsp; [출결·보강 규칙](src/modules/attendance/attendance-rules.ts) &nbsp;·&nbsp; [환불·할인 규칙](src/modules/payments/payment-rules.ts)
