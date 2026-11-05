@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { DataSource, type EntityManager } from 'typeorm';
+import { DataSource, In, type EntityManager } from 'typeorm';
 import type { AuthUser } from '../../common/auth.types.js';
 import { addDays, mondayOf, todayKst } from '../../common/time/kst.js';
 import { ClassSession } from '../classes/class-session.entity.js';
@@ -64,10 +64,16 @@ export class AttendanceService {
       session.status = '휴강';
       session.memo = dto.memo?.trim() || session.memo;
       await m.save(session);
+      // 이 수업으로 잡힌 보강은 들어갈 수업이 없어지므로 거절로 돌린다 → 그 결석으로 다시 보강 신청 가능 (QA BUG-005)
+      const makeups = await m.find(Makeup, {
+        where: { targetSessionId: session.id, status: In(['신청', '확정']) },
+      });
+      for (const mk of makeups) mk.status = '거절';
+      if (makeups.length) await m.save(makeups);
       if (dto.replacement) {
         await this.addExtra(m, session.classId, dto.replacement, session.id);
       }
-      return { ok: true };
+      return { ok: true, rejectedMakeups: makeups.length };
     });
   }
 
@@ -86,6 +92,11 @@ export class AttendanceService {
   ) {
     if (dto.endTime <= dto.startTime)
       throw new BadRequestException('끝나는 시간이 시작 시간보다 늦어야 해요.');
+    const [cls] = await m.query<{ id: number }[]>(
+      'SELECT id FROM hw2.class WHERE id = $1 AND deleted_at IS NULL',
+      [classId],
+    );
+    if (!cls) throw new NotFoundException('없는 반이에요.');
     const saved = await m.save(
       m.create(ClassSession, {
         classId,
@@ -234,7 +245,7 @@ export class AttendanceService {
     exceptMakeupId: number | null = null,
   ) {
     const [absence] = await m.query(
-      `SELECT a.id, a.student_id AS "studentId", a.status, to_char(s.date, 'YYYY-MM-DD') AS date, s.class_id AS "classId", c.target_grade AS "targetGrade"
+      `SELECT a.id, a.student_id AS "studentId", a.status, a.attend_type AS "attendType", to_char(s.date, 'YYYY-MM-DD') AS date, s.class_id AS "classId", c.target_grade AS "targetGrade"
        FROM hw2.attendance a JOIN hw2.class_session s ON s.id = a.session_id JOIN hw2.class c ON c.id = s.class_id
        WHERE a.id = $1 AND a.deleted_at IS NULL`,
       [absenceId],

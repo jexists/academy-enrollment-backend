@@ -50,3 +50,19 @@ export function refundAmount(input: RefundInput) {
     passedSessions,
   };
 }
+
+/**
+ * 수강종료 뒤 그 달 납부를 기록하면 환불액을 다시 계산해야 하나 (QA BUG-009, 결정 11-03 "환불은 그 달 낸 금액 기준").
+ * 그만둔 달과 같은 달의 납부일 때만 — 다른 달 납부는 환불과 관계없다.
+ */
+export function refundNeedsRecalc(input: {
+  status: string;
+  endDate: string | null;
+  paidMonth: string;
+}): boolean {
+  return (
+    input.status === '수강종료' &&
+    !!input.endDate &&
+    input.endDate.slice(0, 7) === input.paidMonth
+  );
+}

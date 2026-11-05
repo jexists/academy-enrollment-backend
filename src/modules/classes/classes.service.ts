@@ -24,6 +24,7 @@ import {
   type NamedSlot,
   type Slot,
 } from './schedule-rules.js';
+import { todayKst } from '../../common/time/kst.js';
 
 const CLASS_SQL = `
   SELECT c.id, c.name, c.target_grade AS "targetGrade", c.capacity, c.monthly_fee AS "monthlyFee", c.intro,
@@ -118,7 +119,8 @@ export class ClassesService {
       ...(dto.isActive !== undefined && { isActive: dto.isActive }),
     });
     await repo.save(cls);
-    return this.detail(id, new Date().toISOString().slice(0, 7));
+    // 한국 시간 기준 이번 달 (UTC로 자르면 매달 1일 0~9시에 지난달이 됨)
+    return this.detail(id, todayKst().slice(0, 7));
   }
 
   /** 그 달 수업일 만들기. 이미 있는 날짜는 건너뛴다 */

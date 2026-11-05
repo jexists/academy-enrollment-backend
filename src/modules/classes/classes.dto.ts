@@ -1,5 +1,6 @@
 import { Transform, Type } from 'class-transformer';
 import {
+  IsArray,
   ArrayMinSize,
   IsBoolean,
   IsEmail,
@@ -65,6 +66,7 @@ export class CreateClassDto {
   @Type(() => Number)
   @IsInt({ message: '월 수강료는 숫자로 적어 주세요.' })
   @Min(0, { message: '월 수강료는 0원 이상이어야 해요.' })
+  @Max(10_000_000, { message: '월 수강료는 1,000만 원까지 적을 수 있어요.' })
   monthlyFee: number;
 
   @IsOptional()
@@ -72,6 +74,7 @@ export class CreateClassDto {
   @MaxLength(200)
   intro?: string;
 
+  @IsArray({ message: '정규 요일을 하나 이상 넣어 주세요.' })
   @ValidateNested({ each: true })
   @Type(() => SlotDto)
   @ArrayMinSize(1, { message: '정규 요일을 하나 이상 넣어 주세요.' })
@@ -94,6 +97,7 @@ export class UpdateClassDto {
   @Type(() => Number)
   @IsInt()
   @Min(0)
+  @Max(10_000_000, { message: '월 수강료는 1,000만 원까지 적을 수 있어요.' })
   monthlyFee?: number;
 
   @IsOptional()

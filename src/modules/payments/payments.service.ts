@@ -9,6 +9,7 @@ import { Enrollment } from '../enrollments/enrollment.entity.js';
 import { EnrollmentsService } from '../enrollments/enrollments.service.js';
 import {
   refundAmount,
+  refundNeedsRecalc,
   siblingDiscount,
   siblingOrders,
 } from './payment-rules.js';
@@ -115,6 +116,22 @@ export class PaymentsService {
           ? `둘째 이상 ${Math.round((discountAmount / bill.listPrice) * 100)}%`
           : null),
     });
+    // 이미 수강종료한 달의 납부면, 낸 금액 기준으로 환불액을 다시 확정한다 (QA BUG-009)
+    const repo = this.dataSource.getRepository(Enrollment);
+    const enrollment = await repo.findOneBy({ id: dto.enrollmentId });
+    if (
+      enrollment &&
+      refundNeedsRecalc({
+        status: enrollment.status,
+        endDate: enrollment.endDate,
+        paidMonth: dto.yearMonth,
+      })
+    ) {
+      const preview = await this.preview(enrollment.id, enrollment.endDate!);
+      enrollment.refundAmount = preview.amount;
+      await repo.save(enrollment);
+      return { ok: true, refundAmount: preview.amount };
+    }
     return { ok: true };
   }
 

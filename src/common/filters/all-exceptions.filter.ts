@@ -68,6 +68,15 @@ const CONSTRAINT_MESSAGES: Record<string, { status: number; message: string }> =
     },
   };
 
+/** Nest가 영어로 내는 문구(ParseIntPipe·Throttler)를 한국어로 바꾼다. */
+function koreanFrameworkMessage(status: number, text: string): string {
+  if (status === Number(HttpStatus.TOO_MANY_REQUESTS))
+    return '요청이 너무 많아요. 1분 뒤에 다시 시도해 주세요.';
+  if (/numeric string is expected/.test(text))
+    return '번호 형식이 맞지 않아요.';
+  return text;
+}
+
 /** 모든 오류를 { statusCode, message, fieldErrors? } 한 가지 형식으로 응답한다. */
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -87,16 +96,20 @@ export class AllExceptionsFilter implements ExceptionFilter {
       const status = exception.getStatus();
       const response = exception.getResponse();
       if (typeof response === 'string')
-        return { statusCode: status, message: response };
+        return {
+          statusCode: status,
+          message: koreanFrameworkMessage(status, response),
+        };
       const { message, fieldErrors } = response as {
         message?: string | string[];
         fieldErrors?: Record<string, string>;
       };
+      const text = Array.isArray(message)
+        ? message[0]
+        : (message ?? exception.message);
       return {
         statusCode: status,
-        message: Array.isArray(message)
-          ? message[0]
-          : (message ?? exception.message),
+        message: koreanFrameworkMessage(status, text),
         ...(fieldErrors ? { fieldErrors } : {}),
       };
     }
@@ -106,6 +119,19 @@ export class AllExceptionsFilter implements ExceptionFilter {
         .constraint;
       const known = constraint ? CONSTRAINT_MESSAGES[constraint] : undefined;
       if (known) return { statusCode: known.status, message: known.message };
+      // 형식은 맞지만 없는 날짜(2026-02-31 등)·시간
+      const code = (exception.driverError as { code?: string }).code;
+      if (code === '22007' || code === '22008')
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: '날짜나 시간을 다시 확인해 주세요.',
+        };
+      // 정수 범위를 넘는 숫자 (QA BUG-017)
+      if (code === '22003')
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: '숫자가 너무 커요. 다시 확인해 주세요.',
+        };
     }
 
     this.logger.error(exception);

@@ -124,7 +124,7 @@ export class StaffService {
   }
 
   async updateAccount(parentUserId: number, dto: UpdateAccountDto) {
-    return this.dataSource.transaction(async (m) => {
+    await this.dataSource.transaction(async (m) => {
       const user = await m.findOneByOrFail(AppUser, { id: parentUserId });
       const profile = await m.findOneBy(ParentProfile, {
         userId: parentUserId,
@@ -136,8 +136,9 @@ export class StaffService {
       }
       if (profile && dto.phone) profile.phone = dto.phone;
       if (profile) await m.save(profile);
-      return this.account(parentUserId);
     });
+    // 트랜잭션이 끝난 뒤 읽어야 바뀐 값이 보인다 (QA BUG-023 — 안에서 다른 연결로 읽으면 수정 전 값)
+    return this.account(parentUserId);
   }
 
   /**
